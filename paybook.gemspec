@@ -6,8 +6,8 @@ require 'paybook/version'
 Gem::Specification.new do |spec|
   spec.name          = "paybook"
   spec.version       = Paybook::VERSION
-  spec.authors       = ["cesarbecerra"]
-  spec.email         = ["jucebesu19@gmail.com"]
+  spec.authors       = %w(cesarbecerra netmask)
+  spec.email         = %w(jucebesu19@gmail.com jonathan@devmask.net)
 
   spec.summary       = %q{Connect with Paybook API}
   spec.description   = %q{Connect with Paybook API}
@@ -28,4 +28,6 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "bundler", "~> 1.12"
   spec.add_development_dependency "rake", "~> 10.0"
+  spec.add_development_dependency "rspec"
+
 end

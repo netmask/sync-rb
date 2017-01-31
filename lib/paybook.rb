@@ -2,129 +2,90 @@ require "paybook/version"
 require "httparty"
 
 module Paybook
-	class Api
-		include HTTParty
-		base_uri 'https://sync.paybook.com/v1'
+  class Api
+    include HTTParty
 
-		format :json
+    base_uri 'https://sync.paybook.com/v1'
 
-		def initialize(api_key)
-			@api_key = api_key
-		end
+    format :json
 
-		def connect(params=nil, method, endpoint)
-			if method == 'get'
-				response = self.class.get(endpoint, :query => params)
-			elsif method == 'post'
-				response = self.class.post(endpoint, :query => params)
-			elsif method == 'delete'
-				response = self.class.delete(endpoint, :query => params)
-			else
-				print 1
-			end
+    def initialize(api_key)
+      @api_key = api_key
+    end
 
-			return JSON.parse(response.body)
-		end
-		
-		def get_sites
-			data = {
-				:api_key => @api_key
-			}
-			return self.connect(data, 'get', '/catalogues/sites')
-		end
-		
-		def get_sites
-			data = {
-				:api_key => @api_key
-			}
-			return self.connect(data, 'get', '/catalogues/sites')
-		end
-		
-		def get_countries
-			data = {
-				:api_key => @api_key
-			}
-			return self.connect(data, 'get', '/catalogues/countries')
-		end
+    def connect(method, endpoint, params = {})
+      params.merge(api_key: @api_key)
 
-		def get_site_organizations
-			data = {
-				:api_key => @api_key
-			}
-			return self.connect(data, 'get', 'catalogues/site_organizations')
-		end
+      response = if method == :get
+                   self.class.get(endpoint, :query => params)
+                 elsif method == :post
+                   self.class.post(endpoint, :query => params)
+                 elsif method == :delete
+                   self.class.delete(endpoint, :query => params)
+                 else
+                   raise StandardError.new('No method found')
+                 end
 
-		def user_list
-			data = {
-				:api_key => @api_key
-			}
-			return self.connect(data, 'get', '/users')
-		end
-		
-		def create_user(username)
-			data = {
-				:api_key => @api_key,
-				:name => username
-			}
-			return self.connect(data, 'post', '/users')
-		end
-		
-		def delete_user(id_user)
-			data = {
-				:api_key => @api_key
-			}
-			return self.connect(data, 'delete', '/users/' + id_user)
-		end
-		
-		def create_session(id_user)
-			data = {
-				:api_key => @api_key,
-				:id_user => id_user
-			}
-			return self.connect(data, 'post', '/sessions')
-		end
-		
-		def validate_session(token)
-			return self.connect('get', '/sessions/' + token + '/verify')
-		end
-		
-		def delete_session(token)
-			return self.connect('delete', '/sessions/' + token)
-		end
-		
-		def register_credentials(id_user, id_site, token, credentials)
-			data = {
-				:api_key => @api_key,
-				:id_site => id_site,
-        :id_user => id_user,
-				:token => token,
-        :credentials => credentials
-			}
-			return self.connect(data, 'get', '/credentials')
-		end
-		
-		def get_accounts(token)
-			data = {
-				:api_key => @api_key,
-				:token => token
-			}
-			return self.connect(data, 'get', '/accounts')
-		end
-		
-		def get_transactions(token)
-			data = {
-				:api_key => @api_key,
-				:token => token
-			}
-			return self.connect(data, 'get', '/transactions')
-		end
-		
-		def get_attachments(token)
-			data = {
-				:api_key => @api_key,
-				:token => token
-			}
-			return self.connect(data, 'get', '/attachments')
-		end
-	end
+      JSON.parse(response.body)
+    end
+
+    def get_sites
+      self.connect(:get, '/catalogues/sites')
+    end
+
+    def get_countries
+      self.connect(:get, '/catalogues/countries')
+    end
+
+    def get_site_organizations
+      self.connect(:get, 'catalogues/site_organizations')
+    end
+
+    def user_list
+      self.connect(:get, '/users')
+    end
+
+    def create_user(username)
+      self.connect(:post, '/users', name: username)
+    end
+
+    def delete_user(id_user)
+      self.connect(:delete, "/users/#{id_user}")
+    end
+
+    def create_session(id_user)
+      self.connect(:post, '/sessions', id_user: id_user)
+    end
+
+    def validate_session(token)
+      self.connect(:get, "/sessions/#{token}/verify")
+    end
+
+    def delete_session(token)
+      self.connect(:delete, "/sessions/#{token}")
+    end
+
+    def register_credentials(id_user, id_site, token, credentials)
+      data = {
+          id_site: id_site,
+          id_user: id_user,
+          token: token,
+          credentials: credentials
+      }
+
+      self.connect(:get, '/credentials', data)
+    end
+
+    def get_accounts(token)
+      self.connect(:get, '/accounts', token: token)
+    end
+
+    def get_transactions(token)
+      self.connect(:get, '/transactions', :token => token)
+    end
+
+    def get_attachments(token)
+      self.connect(:get, '/attachments', token: token)
+    end
+  end
 end
