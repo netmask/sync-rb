@@ -14,7 +14,9 @@ module Paybook
     end
 
     def connect(method, endpoint, params = {})
-      params.merge(api_key: @api_key)
+      params[:api_key] = @api_key
+
+      ap params
 
       response = if method == :get
                    self.class.get(endpoint, :query => params)
@@ -76,12 +78,12 @@ module Paybook
       self.connect(:get, '/credentials', data)
     end
 
-    def get_accounts(token)
-      self.connect(:get, '/accounts', token: token)
+    def get_accounts(id_user, token)
+      self.connect(:get, '/accounts', :token => token, id_user: id_user)
     end
 
-    def get_transactions(token)
-      self.connect(:get, '/transactions', :token => token)
+    def get_transactions(id_user)
+      self.connect(:get, '/transactions', id_user: id_user)
     end
 
     def get_attachments(token)
